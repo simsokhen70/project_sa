@@ -1,0 +1,129 @@
+@import url("https://fonts.googleapis.com/css2?family=Kantumruy+Pro&family=Siemreap&display=swap");
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    font-family: "Inter", sans-serif;
+  }
+}
+
+@layer components {
+  input[type="checkbox"]:checked ~ label span svg {
+    @apply inline-flex;
+  }
+
+  .sticky .header-logo {
+    @apply py-5 lg:py-2;
+  }
+
+  .sticky .menu-scroll.active {
+    @apply opacity-70;
+  }
+
+  input#togglePlan:checked ~ .dot {
+    @apply translate-x-full;
+  }
+
+  input#checkboxLabel:checked ~ .box span {
+    @apply opacity-100;
+  }
+}
+
+@keyframes revealText {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Apply the animation to each letter */
+#text-container span {
+  animation: revealText 0.5s forwards;
+  opacity: 0;
+}
+
+/* Delay each letter */
+#text-container span:nth-child(2n) {
+  animation-delay: 0.1s; /* Adjust delay as needed */
+}
+
+.custom-loader {
+  width: 20px;
+  height: 20px;
+  display: grid;
+  border-radius: 50%;
+  -webkit-mask: radial-gradient(farthest-side,#0000 40%,#000 41%);
+  background: linear-gradient(0deg ,#75CFF3 50%,#75CFF3 0) center/4px 100%,
+    linear-gradient(90deg,#75CFF3 50%,#75CFF3 0) center/100% 4px;
+  background-repeat: no-repeat;
+  animation: s3 1s infinite steps(12);
+}
+
+.custom-loader::before,
+.custom-loader::after {
+  content: "";
+  grid-area: 1/1;
+  border-radius: 50%;
+  background: inherit;
+  opacity: 0.915;
+  transform: rotate(30deg);
+}
+
+.custom-loader::after {
+  opacity: 0.83;
+  transform: rotate(60deg);
+}
+
+
+@keyframes s3 {
+  100% {
+    transform: rotate(1turn)
+  }
+}
+
+.custom-scroll::-webkit-scrollbar {
+  width: 10px;
+}
+
+.custom-scroll::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.custom-scroll::-webkit-scrollbar-thumb {
+  background-color: #356ED7;
+  border-radius: 6px;
+}
+
+.custom-scroll::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.customShadow {
+  box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+}
+
+.logs-container {
+  margin-top: 20px;
+  padding: 10px;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  width: 100%;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.logs {
+  white-space: pre-wrap;
+  font-family: monospace;
+  color: #333;
+}
+
+
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap')
+@import url('https://fonts.googleapis.com/css2?family=Inconsolata:wght@200..900&display=swap')
+

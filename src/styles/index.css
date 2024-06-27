@@ -123,6 +123,20 @@
   color: #333;
 }
 
+/* Test.module.css */
+@keyframes rocketUp {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-300px);
+  }
+}
+
+.rocketAnimation {
+  animation: rocketUp 2s forwards;
+}
+
 
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap')
 @import url('https://fonts.googleapis.com/css2?family=Inconsolata:wght@200..900&display=swap')

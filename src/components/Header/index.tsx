@@ -173,14 +173,14 @@ const Header = () => {
                   alt="logo"
                   width={140}
                   height={30}
-                  className="w-[40%] dark:hidden"
+                  className="w-[50%] dark:hidden"
                 />
                 <Image
                   src="/images/logo/deploy-icon-8.jpg"
                   alt="logo"
                   width={140}
                   height={30}
-                  className="hidden w-[40%] dark:block"
+                  className="hidden w-[50%] dark:block"
                 />
               </Link>
             </div>
@@ -246,7 +246,7 @@ const Header = () => {
                               isBordered: true,
                               src:
                               session?.prfl_PHTG ? session?.prfl_PHTG
-                                :  "https://cdn3d.iconscout.com/3d/premium/thumb/business-worker-avatar-11428381-9236975.png" ,
+                                :  "https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcRz4HJHMwMbpcnP6wHZ8PboRZqQsxRRnxcFJL43UPP_IBCHrqqH" ,
                             }}
                             className="transition-transform"
                             description={session?.jbcl_NM}

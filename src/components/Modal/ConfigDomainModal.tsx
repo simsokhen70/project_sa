@@ -50,6 +50,7 @@ export default function ConfigDomainModal({ valuePort, isOpenDomain }) {
 
       eventSource.onmessage = (event) => {
         setLogs((prevLogs) => [...prevLogs, event.data]);
+        onClose();
       };
 
       eventSource.onerror = (err) => {

@@ -28,7 +28,7 @@ const Footer = () => {
                 </Link>
                 <div>
                   <ul>
-                    <li><span className="">Copyright(c)</span><b className=""> Deployment Pilot </b><span className=""> All right reserved</span></li>
+                    <li className="dark:text-white"><span className="">Copyright(c)</span><b className=""> Deployment Pilot </b><span className=""> All right reserved</span></li>
                   </ul>
                 </div>
                 <p className="mb-9 text-base leading-relaxed text-body-color dark:text-body-color-dark">

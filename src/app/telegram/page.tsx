@@ -6,8 +6,8 @@ export default function ReportToTelegram() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
 
-  const botUsername = 'OrginalKhenBot'; // Replace with your bot's username
-  const messageText = `Here is your Gigi deployment platform username: sokhen\nPlease click send now to interactive with Our bot.`; // Pre-defined message
+  const botUsername = 'OrginalKhenBot';
+  const messageText = `Here is your Gigi deployment platform username: sokhen\nPlease click send now to interactive with Our bot.`; 
 
   const handleSubmit = (e) => {
     e.preventDefault();

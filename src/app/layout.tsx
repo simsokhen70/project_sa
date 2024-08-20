@@ -20,6 +20,7 @@ export default function RootLayout({
       <Script src="https://accounts.google.com/gsi/client" />
   </head>
       <body className={`bg-[#FCFCFC] dark:bg-black font-myText`}>
+        <SessionProvider>
           <Providers>
             <Header />
             <Toaster position="top-center" />
@@ -27,6 +28,7 @@ export default function RootLayout({
             <Footer />
             <ScrollToTop />
           </Providers>
+          </SessionProvider>
       </body>
     </html>
   );
@@ -34,4 +36,5 @@ export default function RootLayout({
 
 import { Providers } from "./providers";import { Toaster } from "react-hot-toast";
 import Script from "next/script";
+import { SessionProvider } from "next-auth/react";
 

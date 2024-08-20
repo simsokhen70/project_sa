@@ -43,7 +43,7 @@ const SigninPage = () => {
     setPassword(e.target.value);
   };
 
-  const handleSubmitSignIn = () => {
+  const handleSubmitSignIn = async () => {
     console.log("handleSubmitSignIn")
     if (username === "" || username === undefined) {
       showToast("Please enter username");
@@ -53,17 +53,29 @@ const SigninPage = () => {
       return;
     } else {
       setLoading(true);
-      signInUser(username, password).then((res) => {
-        console.log({ res });
-        if (res?.status == 200) {
-          showToastSuccess("Login successfully");
+      const result = await signIn("credentials", {
+        username: username,
+        password: password
+    })
+    if (result?.ok) {
+                showToastSuccess("Login successfully");
           setLoading(false);
-          localStorage.setItem("tid", res?.data?.token);
+          // localStorage.setItem("tid", result?.data?.token);
           router.push("/web");
         } else {
             setLoading(false);
         }
-      });
+      // signInUser(username, password).then((res) => {
+      //   console.log({ res });
+      //   if (res?.status == 200) {
+      //     showToastSuccess("Login successfully");
+      //     setLoading(false);
+      //     localStorage.setItem("tid", res?.data?.token);
+      //     router.push("/web");
+      //   } else {
+      //       setLoading(false);
+      //   }
+      // });
     }
   };
 

@@ -7,6 +7,8 @@ import { useDropzone } from "react-dropzone";
 import { Tabs, Tab, Card, CardBody } from "@nextui-org/react";
 import VerifyOtpModal from "@/components/Modal/VerifyOtpModal";
 import { registerUser } from "@/services/authservice.service";
+import axios from "axios";
+import { API_URL } from "@/api/inteceptor";
 export default function SignUp() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -28,20 +30,31 @@ export default function SignUp() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsVerifyOtpModalOpen(true);
+    setLoading(true);
+    const formData = new FormData();
+    formData.append('image', profile);
+    try {
+      const response = await axios.post(`${API_URL}/api/v1/images/file`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      console.log('File uploaded successfully', response.data);
+      const userProfile = `${API_URL}/api/v1/images/getImage?fileName=${response?.data?.payload}`
+      const res = await registerUser(username, password, email, userProfile);
+      console.log({ res });
 
-    // setLoading(true);
-    // registerUser(username, password, email, "string").then((res) => {
-    //     console.log({res})
-    //     if(res.status === 200) {
-    //         setLoading(false);
-    //         setIsVerifyOtpModalOpen(true);
-    //     }
-    //     setLoading(false);
-
-    // })
-
-    // console.log({ username, password, email, profile });
+      if (res.status === 200) {
+        setLoading(false);
+        setIsVerifyOtpModalOpen(true);
+      } else {
+        setLoading(false);
+      }
+    } catch (error) {
+      console.error('Error uploading file', error);
+      setLoading(false); 
+    }
+    console.log({ username, password, email, profile });
   };
 
   return (

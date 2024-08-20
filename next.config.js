@@ -2,7 +2,8 @@
 const nextConfig = {
   output: 'standalone',
   env: {
-    apiUrl: process.env.API_URL
+    apiUrl: process.env.API_URL,
+    NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET
   },
   images: {
     domains: ["localhost"],

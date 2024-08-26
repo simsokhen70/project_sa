@@ -5,7 +5,6 @@ import Link from "next/link";
 import ThemeToggler from "./ThemeToggler";
 import { Avatar, Button, Image, Input, Tooltip } from "@nextui-org/react";
 import { jwtDecode } from "jwt-decode";
-import { getUserByUserId } from "@/services/user.service";
 import {
   Dropdown,
   DropdownTrigger,
@@ -13,9 +12,7 @@ import {
   DropdownItem,
   User,
 } from "@nextui-org/react";
-import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import { debounce } from "@mui/material";
 import {
   Modal,
   ModalContent,
@@ -39,11 +36,12 @@ import {
 import { EyeSlashFilledIcon } from "./EyeSlashFilledIcon";
 import { EyeFilledIcon } from "./EyeFilledIcon";
 import { HStack, PinInput, PinInputField } from "@chakra-ui/react";
-import ihttp, { api, getSession } from "@/api/inteceptor";
-import ProtectedRoute from "../ProtectedRoute/ProtectedRoute";
+import ihttp, { api } from "@/api/inteceptor";
+import { signOut, useSession } from "next-auth/react";
 
 const Header = () => {
-  const [session, setSession] = useState({});
+  const { data: session } = useSession();
+
   const [attempt, setAttempt] = useState(3);
   const [pinValues, setPinValues] = useState(["", "", "", "", "", ""]);
   const [isVisible, setIsVisible] = useState(false);
@@ -51,29 +49,20 @@ const Header = () => {
   const [gloading, setGLoading] = useState(false);
   const toggleVisibility = () => setIsVisible(!isVisible);
   const [otpPopUp, setOtpPopUp] = useState(false);
-  // const { data: session, status } = useSession();
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   // Navbar toggle
   const [navbarOpen, setNavbarOpen] = useState(false);
-  const [isLogged, setIsLogged] = useState(false);
 
   const [newPassword, setNewPassword] = useState("")
-  const router = useRouter();
 
   useEffect(() => {
-    // getSession().then((res) => {
-    //   setSession(res);
-    // });
-  }, []);
+
+  }, [session]);
+
   const navbarToggleHandler = () => {
     setNavbarOpen(!navbarOpen);
   };
-  const showToastSuccess = debounce((message) => {
-    toast.success(message);
-  }, 1000);
 
-  useEffect(() => {
-  }, []);
 
   // Sticky Navbar
   const [sticky, setSticky] = useState(false);
@@ -151,9 +140,8 @@ const Header = () => {
 
   return (
     <>
-    {/* <ProtectedRoute></ProtectedRoute> */}
       <header
-        className={`header left-0 top-0 z-40 flex w-full items-center ${
+        className={`header bg-white customShadow left-0 top-0 z-40 flex w-full items-center ${
           sticky
             ? "fixed z-[9999] bg-white !bg-opacity-80 shadow-sticky backdrop-blur-sm transition dark:bg-gray-dark dark:shadow-sticky-dark"
             : "absolute bg-transparent"
@@ -220,16 +208,16 @@ const Header = () => {
                 </nav>
               </div>
               <div className="flex items-center justify-end pr-16 lg:pr-0">
-                {session == 401 ? (
+                {session == undefined ? (
                   <>
                     <Link
-                      href="https://bizweb.kosign.dev/signin"
+                      href="/signin"
                       className="hidden px-7 py-3 text-base font-medium text-dark hover:opacity-70 dark:text-white md:block"
                     >
                       Sign In
                     </Link>
                     <Link
-                      href="https://bizweb.kosign.dev/signup"
+                      href="/signup"
                       className="ease-in-up hidden rounded-3xl bg-primary px-8 py-3 text-base font-medium text-white shadow-btn transition duration-300 hover:bg-opacity-90 hover:shadow-btn-hover md:block md:px-9 lg:px-6 xl:px-9"
                     >
                       Sign Up
@@ -245,18 +233,18 @@ const Header = () => {
                             avatarProps={{
                               isBordered: true,
                               src:
-                              session?.prfl_PHTG ? session?.prfl_PHTG
-                                :  "https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcRz4HJHMwMbpcnP6wHZ8PboRZqQsxRRnxcFJL43UPP_IBCHrqqH" ,
+                              session?.user?.profile ? session?.user?.profile
+                                :  "https://i.pinimg.com/236x/57/33/a8/5733a895f8c7c48c17d8544a05285f0e.jpg" ,
                             }}
                             className="transition-transform"
-                            description={session?.jbcl_NM}
-                            name={session?.flnm}
+                            description={session?.user?.email}
+                            name={session?.user?.username}
                           />
                         </DropdownTrigger>
                         <DropdownMenu aria-label="User Actions" variant="flat">
                           <DropdownItem key="profile" className="h-14 gap-2">
                             <p className="font-bold">Signed in as</p>
-                            <p className="font-medium">@{session?.userId}</p>
+                            <p className="font-medium">@{session?.user?.username}</p>
                           </DropdownItem>
                           <DropdownItem
                             onClick={onOpen}
@@ -266,10 +254,7 @@ const Header = () => {
                             Settings
                           </DropdownItem>
                           <DropdownItem
-                            onClick={() => {                                
-                                localStorage.removeItem("tid"),
-                                router.push("#")
-                            }}
+                            onClick={() => signOut({ callbackUrl: '/signin' })}
                             key="logout"
                             color="danger"
                           >
@@ -301,13 +286,13 @@ const Header = () => {
                                     isBordered
                                     className="h-[60px] w-[60px] rounded-3xl"
                                     src={
-                                      session?.prfl_PHTG 
+                                      session?.user?.profile 
                                     }
                                   />
                                   <div className="flex flex-col">
-                                    <p className="text-md">{session?.flnm}</p>
+                                    <p className="text-md">{session?.user?.username}</p>
                                     <p className="text-small text-default-500">
-                                      {session?.jbcl_NM}
+                                      {session?.user?.email}
                                     </p>
                                   </div>
                                 </CardHeader>
@@ -349,16 +334,16 @@ const Header = () => {
                                         </clipPath>
                                       </defs>
                                     </svg>
-                                    {session?.eml}
+                                    {session?.user?.email}
                                   </span>
                                   <span className="mb-4 flex items-center gap-4 text-center text-small text-default-500">
                                     <HomeRepairServiceOutlinedIcon />
-                                    {session?.dvsn_NM}
+                                    {session?.user?.role == "user" ? "Normal User" : "Administrator"}
                                   </span>
 
                                   <span className="flex items-center gap-4 text-center text-small text-default-500">
                                     <PhoneIphoneOutlinedIcon />
-                                    {session?.clph_NO}
+                                    0965601645 static
                                   </span>
                                 </CardBody>
                                 <Divider />

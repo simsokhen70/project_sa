@@ -9,31 +9,34 @@ import {
 } from "@nextui-org/react";
 import { HStack, PinInput, PinInputField } from "@chakra-ui/react";
 import Image from "next/image";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Tooltip } from "@nextui-org/react";
 import KeyIcon from "@mui/icons-material/Key";
 import { signInUser } from "@/services/authservice.service";
 import { debounce } from "@mui/material";
+import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { showToast, showToastSuccess } from "@/services/commonfunction.service";
+import Link from "next/link";
 const SigninPage = () => {
-  const googleSignInHandler = async () => {
-    await signIn("google");
-  };
-
   const { onOpen } = useDisclosure();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-
+  const [showPassword, setShowPassword] = useState(false);
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get('callbackUrl') || '/web';
   const router = useRouter();
-  const showToast = debounce((message) => {
-    toast.error(message);
-  }, 1000);
 
-  const showToastSuccess = debounce((message) => {
-    toast.success(message);
-  }, 1000);
+
+
+  const googleSignInHandler = async () => {
+    await signIn("google");
+  };
 
   const handleUsername = (e) => {
     setUsername(e.target.value);
@@ -44,7 +47,6 @@ const SigninPage = () => {
   };
 
   const handleSubmitSignIn = async () => {
-    console.log("handleSubmitSignIn")
     if (username === "" || username === undefined) {
       showToast("Please enter username");
       return;
@@ -53,29 +55,22 @@ const SigninPage = () => {
       return;
     } else {
       setLoading(true);
-      const result = await signIn("credentials", {
-        username: username,
-        password: password
-    })
-    if (result?.ok) {
-                showToastSuccess("Login successfully");
-          setLoading(false);
-          // localStorage.setItem("tid", result?.data?.token);
-          router.push("/web");
-        } else {
-            setLoading(false);
-        }
-      // signInUser(username, password).then((res) => {
-      //   console.log({ res });
-      //   if (res?.status == 200) {
-      //     showToastSuccess("Login successfully");
-      //     setLoading(false);
-      //     localStorage.setItem("tid", res?.data?.token);
-      //     router.push("/web");
-      //   } else {
-      //       setLoading(false);
-      //   }
-      // });
+      const result = await signIn('credentials', {
+        username,
+        password,
+        redirect: false,
+        callbackUrl,
+      });
+  
+      if (result?.error) {
+        setLoading(false);
+        showToast("Invalid username or password.");
+        console.error(result.error);
+      } else {
+        setLoading(false);
+        showToastSuccess("Login successfully");
+        router.push('/web');
+      }
     }
   };
 
@@ -164,13 +159,22 @@ const SigninPage = () => {
                     >
                       Password
                     </label>
+                    <div className="relative">
                     <input
                       onChange={handlePassword}
-                      type="email"
-                      name="email"
+                      type={showPassword ? 'text' : 'password'}
+                      name="password"
                       placeholder="Enter Password"
                       className="border-stroke w-full rounded-xl border bg-[#f8f8f8] px-6 py-3 text-base text-body-color outline-none transition-all duration-300 focus:border-primary dark:border-transparent dark:bg-[#2C303B] dark:text-body-color-dark dark:shadow-two dark:focus:border-primary dark:focus:shadow-none"
                     />
+                    <div
+                      onClick={togglePasswordVisibility}
+                      className="absolute right-2 top-[12px]"
+                      aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility className="text-primary" />}
+                    </div>
+                  </div>
                   </div>
 
                   {/* <div className="mb-8 flex flex-col justify-between sm:flex-row sm:items-center">
@@ -192,6 +196,12 @@ const SigninPage = () => {
                     </Button>
                   </div>
                 </form>
+                <p className="text-center text-base font-medium text-body-color">
+                Don{"'"} account yet?{" "}
+                <Link href="/signup" className="text-primary hover:underline">
+                  Sign Up
+                </Link>
+              </p>
                 <p className="text-center text-base font-medium text-body-color"></p>
               </div>
             </div>

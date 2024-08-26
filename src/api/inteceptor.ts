@@ -3,6 +3,7 @@ import axios, {
   AxiosResponse,
   InternalAxiosRequestConfig,
 } from "axios";
+import { getSession } from "next-auth/react";
 
 
 export const API_URL = process.env.apiUrl;
@@ -31,6 +32,7 @@ const ihttp = axios.create({
 
 async function requestInterceptor(config: InternalAxiosRequestConfig) {
   const idToken: any = await getSession();
+  console.log("idToken :", idToken)
   if (!idToken) {
     return Promise.reject("missing access token");
   }

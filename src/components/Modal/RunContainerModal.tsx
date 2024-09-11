@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Modal,
   ModalContent,
@@ -14,14 +14,25 @@ import toast from "react-hot-toast";
 import {deployHtml, runningApp} from "@/services/deployapp.service"
 import { debounce } from "@mui/material";
 import ConfigDomainModal from "./ConfigDomainModal";
+import { useSession } from "next-auth/react";
+import { API_URL } from "@/api/inteceptor";
+import LogViewer from "../logs/LogViewer";
+import gif from "../../../public/6LM.gif";
+import Image from "next/image";
 
 export default function RunContainerModal({ isOpens, valueIma, setIsOpens }) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const { data: session } = useSession();
+
   const [valueCont, setValueCont] = useState("");
   const [valuePort, setValuePort] = useState("");
   const [loading, setLoading] = useState(false);
   const [isOpenDomain, setIsOpenDomain] = useState(false);
-
+  const [showLog, setShowLog] = useState(false);
+  const [logs, setLogs] = useState([]);
+  const [endLog, setEndLog] = useState(false);
+  useEffect(() => {
+  }, [session]);
   const handleSubmit = () =>{
     if(valueCont == "" || valueCont == undefined){
       showToast("Please enter branch name")
@@ -30,20 +41,52 @@ export default function RunContainerModal({ isOpens, valueIma, setIsOpens }) {
     } else if(valueIma == "" || valueIma == undefined){
       showToast("Please enter app name")
     } else if(valueCont != "" || valueCont != undefined || valueIma != "" || valueIma != undefined || valuePort != "" || valuePort != undefined) {
-      runningApp(valueCont, valueIma, valuePort).then((result) => {
-        setLoading(true);
-        if(result.status == 200){
-          console.log({result});
-          setIsOpenDomain(true);
-          setIsOpens(false);
-        }
+      // runningApp(session?.user?.username, valueCont, valueIma, valuePort).then((result) => {
+      //   setLoading(true);
+      //   if(result.status == 200){
+      //     console.log({result});
+      //     setIsOpenDomain(true);
+      //     setIsOpens(false);
+      //   }
 
-      }).catch((err) => {
-        console.log({err})
-        setLoading(false);
-        showToast(err.message);
-      });
-      setIsOpens(false)
+      // }).catch((err) => {
+      //   console.log({err})
+      //   setLoading(false);
+      //   showToast(err.message);
+      // });
+        onOpen();
+        setLoading(true);
+        setShowLog(true);
+      let eventSource;
+          eventSource = new EventSource(
+            `${API_URL}/api/v1/web/run-docker-container?userId=${session?.user?.username}&containerName=${valueCont}&imageName=${valueIma}&port=${valuePort}`,
+            {
+              headers: { "Content-Type": "text/event-stream" },
+            },
+          );
+
+
+        eventSource.onmessage = (event) => {
+          setLogs((prevLogs) => [...prevLogs, event.data]);
+        };
+
+        eventSource.onerror = (err) => {
+          console.error("EventSource failed:", err);
+          eventSource.close();
+          setLoading(false);
+          setEndLog(true);
+        };
+
+        eventSource.onopen = () => {
+          console.log("Connection to server opened.");
+        };
+
+        eventSource.onclose = () => {
+          console.log("Connection to server closed.");
+          setLoading(false);
+          setEndLog(true);
+        };
+      // setIsOpens(false)
     }
   }
 
@@ -58,14 +101,26 @@ export default function RunContainerModal({ isOpens, valueIma, setIsOpens }) {
   return (
     <div className="flex h-[60vh] items-center justify-center">
 
-      <Modal isOpen={isOpens} onOpenChange={onOpenChange}>
+      <Modal size="5xl" isOpen={isOpens} onOpenChange={onOpenChange}>
         <ModalContent>
           {(onClose) => (
             <>
               <ModalHeader className="flex flex-col gap-1">
               Start running :
               </ModalHeader>
-              <ModalBody>
+              <ModalBody className="relative">
+              <Image
+                className="absolute top-0 left-0"
+                width={1200}
+                height={1200}
+                src={gif}
+                objectFit="contain"
+                alt="space"
+              />
+              {showLog ? (
+                  <LogViewer logs={logs} />
+                ) : (
+                  <div className="space-y-3">
                 <p>
                   Lorem ipsum dolor sit amet, consectetur adipiscing elit.
                   Nullam pulvinar risus non risus hendrerit venenatis.
@@ -89,9 +144,12 @@ export default function RunContainerModal({ isOpens, valueIma, setIsOpens }) {
                 value={valuePort}
                 onValueChange={setValuePort}
                 />
+                </div>
+                )}
               </ModalBody>
               <ModalFooter>
-                {!loading ? (
+                {!endLog ? (
+                !loading ? (
                 <Button color="primary" onClick={()=>{handleSubmit()}}>
                   Run
                 </Button>
@@ -99,7 +157,17 @@ export default function RunContainerModal({ isOpens, valueIma, setIsOpens }) {
                   <Button color="primary">
                       <div className="custom-loader"></div>
                 </Button>
-                )}
+                )
+              ) : (
+                <Button
+                color="primary"
+                onClick={() => {
+                  setIsOpens(false), setIsOpenDomain(true);
+                }}
+              >
+                Continue
+              </Button>
+              )}
               </ModalFooter>
             </>
           )}

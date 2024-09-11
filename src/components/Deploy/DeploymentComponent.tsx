@@ -27,6 +27,7 @@ import Image from "next/image";
 import { getSession, useSession } from "next-auth/react";
 import { showToast } from "@/services/commonfunction.service";
 import { getAllUsers } from "@/services/user.service";
+import gif from "../../../public/6LM.gif";
 
 export default function DeploymentComponent() {
   const { data: session } = useSession();
@@ -48,7 +49,6 @@ export default function DeploymentComponent() {
   const [valueToken, setValueToken] = useState("");
 
   useEffect(() => {
-    console.log("session ", session)
   }, [session]);
   useEffect(() => {
     const handleEnded = () => {
@@ -99,14 +99,14 @@ export default function DeploymentComponent() {
         let eventSource;
         if (!isSwitchOn) {
           eventSource = new EventSource(
-            `${API_URL}/api/v1/web/build-docker-image?parentDirectory=projects&branchName=${valueBr}&repoUrl=${valueRep}&imageName=${valueIma}&isPrivate=${true}&projectType=${valuePro.values().next().value}`,
+            `${API_URL}/api/v1/web/build-docker-image?userId=${session?.user?.username}&parentDirectory=projects&branchName=${valueBr}&repoUrl=${valueRep}&imageName=${valueIma}&isPrivate=${true}&projectType=${valuePro.values().next().value}`,
             {
               headers: { "Content-Type": "text/event-stream" },
             },
           );
         } else {
           eventSource = new EventSource(
-            `${API_URL}/api/v1/web/build-docker-image?parentDirectory=projects&branchName=${valueBr}&repoUrl=${valueRep}&imageName=${valueIma}&isPrivate=${false}&username=${valueUsername}&token=${valueToken}&projectType=${valuePro.values().next().value}`,
+            `${API_URL}/api/v1/web/build-docker-image?userId=${session?.user?.username}&parentDirectory=projects&branchName=${valueBr}&repoUrl=${valueRep}&imageName=${valueIma}&isPrivate=${false}&username=${valueUsername}&token=${valueToken}&projectType=${valuePro.values().next().value}`,
             {
               headers: { "Content-Type": "text/event-stream" },
             },
@@ -189,12 +189,23 @@ export default function DeploymentComponent() {
         onOpenChange={onOpenChange}
       >
         <ModalContent>
+          
           {(onClose) => (
             <>
+            
               <ModalHeader className="flex flex-col gap-1 dark:text-white">
-                Deploy static web page
+                Deploy Web Page
               </ModalHeader>
-              <ModalBody>
+              <ModalBody className="relative">
+              <Image
+                className="absolute top-0 left-0"
+                width={1200}
+                height={1200}
+                src={gif}
+                objectFit="contain"
+                alt="rocket"
+                onAnimationEnd={() => setRocketAnimation(false)} // Reset animation after it ends
+              />
                 {showLog ? (
                   <LogViewer logs={logs} />
                 ) : (
@@ -219,12 +230,14 @@ export default function DeploymentComponent() {
                           type="text"
                           label="Parent Directory"
                           value="projects"
+                          className="opacity-80"
                           isDisabled
                         />
                         <Input
                           type="text"
                           label="Branch Name"
                           value={valueBr}
+                          className="opacity-80"
                           onValueChange={setValueBr}
                           // isInvalid={valueBr != "" ? false : true}
                           // errorMessage="Please enter branch name"
@@ -232,12 +245,14 @@ export default function DeploymentComponent() {
                         <Input
                           type="text"
                           label="Git repository URL"
+                          className="opacity-80"
                           value={valueRep}
                           onValueChange={setValueRep}
                         />
                         <Input
                           type="text"
                           label="App Name"
+                          className="opacity-80"
                           value={valueIma}
                           onValueChange={setValueIma}
                         />
@@ -250,6 +265,7 @@ export default function DeploymentComponent() {
                           className="w-full"
                           variant="flat"
                           color="primary"
+                          className="opacity-80"
                           disallowEmptySelection
                           startContent={<WebhookRoundedIcon />}
                           onSelectionChange={setValuePro}
@@ -271,6 +287,7 @@ export default function DeploymentComponent() {
                           )}
                         </Select>
                         <Switch
+                        className="opacity-80"
                           isSelected={isSwitchOn}
                           onChange={handleSwitchChange}
                           classNames={{
@@ -307,12 +324,14 @@ export default function DeploymentComponent() {
                         {isSwitchOn ? (
                           <div className="flex items-center justify-center gap-2">
                             <Input
+                            className="opacity-80"
                               type="text"
                               label="Git's username"
                               value={valueUsername}
                               onValueChange={setValueUsername}
                             />
                             <Input
+                            className="opacity-80"
                               type="text"
                               label="Token"
                               value={valueToken}

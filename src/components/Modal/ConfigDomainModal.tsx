@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Modal,
   ModalContent,
@@ -15,18 +15,27 @@ import {
   configDomain,
   deployHtml,
   runningApp,
+
+
 } from "@/services/deployapp.service";
 import { debounce } from "@mui/material";
 import LogViewer from "../logs/LogViewer";
 import { API_URL } from "@/api/inteceptor";
+import { useSession } from "next-auth/react";
+import Image from "next/image";
+import gif from "../../../public/6LM.gif";
+
 
 export default function ConfigDomainModal({ valuePort, isOpenDomain }) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const { data: session } = useSession();
   const [valueName, setValueName] = useState("");
   const [loading, setLoading] = useState(false);
   const [showLog, setShowLog] = useState(false);
   const [logs, setLogs] = useState([]);
   const [endLog, setEndLog] = useState(false);
+    useEffect(() => {
+    }, [session]);
   const handleSubmit = (onClose) => {
     if (valueName == "" || valueName == undefined) {
       showToast("Please enter domain name");
@@ -42,7 +51,7 @@ export default function ConfigDomainModal({ valuePort, isOpenDomain }) {
       setLoading(true);
       setShowLog(true);
       const eventSource = new EventSource(
-        `${API_URL}/api/v1/config-domain?name=${servername}&serverName=${servername}&port=${valuePort}`,
+        `${API_URL}/api/v1/web/config-domain?userId=${session?.user?.username}&name=${servername}&serverName=${servername}&port=${valuePort}`,
         {
           headers: { "Content-Type": "text/event-stream" },
         },
@@ -92,6 +101,14 @@ export default function ConfigDomainModal({ valuePort, isOpenDomain }) {
                 Config Domain :
               </ModalHeader>
               <ModalBody>
+              <Image
+                className="absolute top-0 left-0"
+                width={1200}
+                height={1200}
+                src={gif}
+                objectFit="contain"
+                alt="space"
+              />
                 {showLog ? (
                   <LogViewer logs={logs} />
                 ) : (

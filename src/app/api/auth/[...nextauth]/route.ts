@@ -1,7 +1,8 @@
 import NextAuth, { DefaultSession, NextAuthOptions, User } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
 import { JWT } from "next-auth/jwt";
-import { signInUserBody } from "@/services/authservice.service";
+import { registerUser, signInUserBody } from "@/services/authservice.service";
 
 // Extend the built-in session type
 declare module "next-auth" {
@@ -36,12 +37,15 @@ declare module "next-auth/jwt" {
   }
 }
 
-export const jwt = async ({ token, user }: { token: JWT; user?: User }) => {
+export const jwt = async ({ token, user, account }: { token: JWT; user?: User; account?: any }) => {
   if (user) {
     token.username = user.username;
     token.token = user.token;
     token.profile = user.profile;
     token.email = user.email;
+  }
+  if (account && account.provider === "google") {
+    token.token = account.access_token;
   }
   return token;
 };
@@ -90,7 +94,15 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
       }
-    })
+    }),
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      // async profile(profile) {
+      //     console.log("profile", profile);
+      //   return profile.username;
+      // }
+    }),
   ],
   session: {
     strategy: "jwt",
@@ -98,7 +110,26 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     jwt,
-    session
+    session,
+    // async signIn({ user, account, profile }) {
+    //   if (account?.provider === "google") {
+    //     console.log("abc " , user)
+    //     try {
+    //       const dfProfile = "https://img.freepik.com/premium-vector/3d-character-businessman-working-laptop-computer_595064-185.jpg";
+    //       const res = await registerUser(user.email.substring(0, user.email.indexOf('@')), 'MIz6tTEHE9JKOxq8tguRIxRB3H3Si9Sjr0UrWRo/FdzG1IfzoO', user.email!, user.profile || dfProfile);
+    //       if (res.status === 200) {
+    //         return true;
+    //       } else {
+    //         // Handle registration failure
+    //         return true;
+    //       }
+    //     } catch (error) {
+    //       console.error("Error registering user:", error);
+    //       return true;
+    //     }
+    //   }
+    //   return true;
+    // },
   },
   pages: {
     signIn: '/signin',

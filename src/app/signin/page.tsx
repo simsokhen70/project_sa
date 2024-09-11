@@ -35,7 +35,10 @@ const SigninPage = () => {
 
 
   const googleSignInHandler = async () => {
-    await signIn("google");
+    await signIn("google", {
+      callbackUrl: "/web",
+      redirect: false,
+    });
   };
 
   const handleUsername = (e) => {
@@ -88,7 +91,7 @@ const SigninPage = () => {
                   Login to your account for a faster checkout.
                 </p>
                 <button
-                  onClick={googleSignInHandler}
+                  onClick={()=>googleSignInHandler()}
                   className="border-stroke mb-6 flex w-full items-center justify-center rounded-xl border bg-[#f8f8f8] px-6 py-3 text-base text-body-color outline-none transition-all duration-300 hover:border-primary hover:bg-primary/5 hover:text-primary dark:border-transparent dark:bg-[#2C303B] dark:text-body-color-dark dark:shadow-two dark:hover:border-primary dark:hover:bg-primary/5 dark:hover:text-primary dark:hover:shadow-none"
                 >
                   <span className="mr-3">

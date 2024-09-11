@@ -233,12 +233,12 @@ const Header = () => {
                             avatarProps={{
                               isBordered: true,
                               src:
-                              session?.user?.profile ? session?.user?.profile
+                              session?.user?.profile ? session?.user?.profile : session?.user?.image ? session?.user?.image 
                                 :  "https://i.pinimg.com/236x/57/33/a8/5733a895f8c7c48c17d8544a05285f0e.jpg" ,
                             }}
                             className="transition-transform"
                             description={session?.user?.email}
-                            name={session?.user?.username}
+                            name={session?.user?.username || "Unknow username"}
                           />
                         </DropdownTrigger>
                         <DropdownMenu aria-label="User Actions" variant="flat">
